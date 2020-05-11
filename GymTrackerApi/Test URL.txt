@@ -1,0 +1,7 @@
+﻿Test URL Examples
+
+Get User Detail
+https://localhost:44381/GetUserDetails?email=test
+
+Test
+https://localhost:44381/test
