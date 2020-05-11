@@ -1,3 +1,0 @@
-﻿Server=localhost;Database=master;Trusted_Connection=True;
-
-Server=tomgorton.database.windows.net;Database=GymTracker;MultipleActiveResultSets=true;User Id=tom.gorton; Password=Hunt3rv!c;
