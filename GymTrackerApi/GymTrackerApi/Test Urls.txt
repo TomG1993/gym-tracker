@@ -1,7 +1,7 @@
 ﻿Test URL Examples
 
 Get User Detail
-https://localhost:44381/GetUserDetails?email=test
+https://localhost:44367/GetUserDetails?email=test
 
 Test
-https://localhost:44381/test
+https://localhost:44367/test

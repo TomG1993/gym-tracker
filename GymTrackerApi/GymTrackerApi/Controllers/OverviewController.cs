@@ -3,9 +3,11 @@
 * Created on: 12/05/2020
 * Created by: Tom Gorton
 *******************************************************************************************/
+
 namespace GymTrackerApi.Controllers
 {
     using GymTrackerApi.Models;
+    using GymTrackerApi.Models.Requests;
     using GymTrackerApi.Repository.Interfaces;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
@@ -46,10 +48,11 @@ namespace GymTrackerApi.Controllers
         /// <param name="Email">The Email<see cref="string"/>.</param>
         /// <returns>The <see cref="List{UserDetail}"/>.</returns>
         [HttpGet("/GetUserDetails")]
-        public List<UserDetail> Get(string Email)
+        public async Task<List<UserDetail>> Get(string Email)
         {
             var users = new List<UserDetail>();
-            users.Add(userDetailRepository.GetUserDetail(Email));
+            var user = await userDetailRepository.GetUserDetail(Email);
+            users.Add(user);
             return users;
         }
 
@@ -58,7 +61,7 @@ namespace GymTrackerApi.Controllers
         /// </summary>
         /// <param name="user">The user<see cref="UserDetail"/>.</param>
         /// <returns>The <see cref="Task{ActionResult{UserDetail}}"/>.</returns>
-        [HttpPost("AddUser")]
+        [HttpPost("/AddUser")]
         public async Task<ActionResult<UserDetail>> PostUser([FromBody]UserDetail user)
         {
             if (user != null)
@@ -68,6 +71,24 @@ namespace GymTrackerApi.Controllers
 
 
             return user;
+        }
+
+        /// <summary>
+        /// The Post Login.
+        /// </summary>
+        /// <param name="request">The request containing an email and a password<see cref="LoginRequest"/>.</param>
+        /// <returns>The <see cref="Task{ActionResult{UserDetail}}"/>.</returns>
+        [HttpPost("/Login")]
+        public async Task<ActionResult<UserDetail>> PostLogin([FromBody]LoginRequest request)
+        {
+            var user = await this.userDetailRepository.GetUserDetail(request.Email);
+
+            if (user.Email == request.Email)
+            {
+                return user;
+            }
+
+            return null;
         }
 
         /// <summary>

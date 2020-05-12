@@ -8,7 +8,7 @@ namespace GymTrackerApi.Repository.Interfaces
 {
     public interface IUserDetailsRepository
     {
-        public UserDetail GetUserDetail(string Email);
+        public Task<UserDetail > GetUserDetail(string Email);
 
         public Task<UserDetail> AddUser(UserDetail user);
     }

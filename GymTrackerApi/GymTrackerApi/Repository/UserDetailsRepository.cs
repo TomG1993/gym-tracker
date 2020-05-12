@@ -1,5 +1,6 @@
 ﻿using GymTrackerApi.Models;
 using GymTrackerApi.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,9 +16,9 @@ namespace GymTrackerApi.Repository
             this.context = context;
         }
 
-        public UserDetail GetUserDetail(string Email)
+        public async Task<UserDetail> GetUserDetail(string Email)
         {
-            var user = context.UserDetails.FirstOrDefault(x => x.Email == Email);
+            var user = await context.UserDetails.FirstOrDefaultAsync(x => x.Email == Email);
 
             return user;
         }
