@@ -1,7 +1,11 @@
 ﻿Test URL Examples
 
+Get Headers
+https://localhost:44367/GetHeaders?userId=2
+
 Get User Detail
 https://localhost:44367/GetUserDetails?email=test
 
 Test
 https://localhost:44367/test
+

@@ -11,5 +11,7 @@ namespace GymTrackerApi.Repository.Interfaces
         public Task<UserDetail > GetUserDetail(string Email);
 
         public Task<UserDetail> AddUser(UserDetail user);
+
+        public Task<List<SessionHeader>> GetHeaders(int userId);
     }
 }

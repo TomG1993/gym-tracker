@@ -19,6 +19,7 @@ namespace GymTrackerApi.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserDetail>().ToTable("UserDetail");
+            modelBuilder.Entity<SessionHeader>().ToTable("SessionHeader");
         }
     }
 }

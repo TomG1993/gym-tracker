@@ -85,7 +85,30 @@ namespace GymTrackerApi.Controllers
 
             if (user.Email == request.Email)
             {
-                return user;
+                if (request.Password == user.Password)
+                {
+                    return user;
+                }
+
+                return new UserDetail() { ID = 0, Name = "Incorrect password" };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// The GetSessions.
+        /// </summary>
+        /// <param name="userId">The userId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{ActionResult{List{SessionHeader}}}"/>.</returns>
+        [HttpGet("/GetHeaders")]
+        public async Task<ActionResult<List<SessionHeader>>> GetHeaders(int userId)
+        {
+            if (userId > 0)
+            {
+                var headers = await this.userDetailRepository.GetHeaders(userId);
+
+                return headers;
             }
 
             return null;
