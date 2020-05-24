@@ -20,6 +20,7 @@ namespace GymTrackerApi.Models
         {
             modelBuilder.Entity<UserDetail>().ToTable("UserDetail");
             modelBuilder.Entity<SessionHeader>().ToTable("SessionHeader");
+            modelBuilder.Entity<SessionExercise>().ToTable("SessionExercise");
         }
     }
 }

@@ -67,5 +67,39 @@ namespace GymTrackerApi.Repository
 
             return headers;
         }
+
+        /// <summary>
+        /// The get session exercises repo
+        /// </summary>
+        /// <param name="headerId"></param>
+        /// <returns>A list of session exercises based on the header id provided</returns>
+        public async Task<List<SessionExercise>> GetSession(int headerId)
+        {
+            var exercises = await context.SessionExercises.Where(x => x.HeaderId == headerId).ToListAsync();
+
+            return exercises;
+        }
+
+        /// <summary>
+        /// Add a new session
+        /// </summary>
+        /// <param name="sessionName"></param>
+        /// <returns></returns>
+        public async Task<int> AddSession(string sessionName, int userId)
+        {
+            var sessionHeader = new SessionHeader()
+            {
+                SessionName = sessionName,
+                UserID = userId,
+                CreatedBy = "TGO",
+                CreatedDate = System.DateTime.Now
+            };
+
+            await context.SessionHeaders.AddAsync(sessionHeader);
+            await context.SaveChangesAsync();
+
+            return sessionHeader.Id;
+
+        }
     }
 }

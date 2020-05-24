@@ -111,7 +111,38 @@ namespace GymTrackerApi.Controllers
                 return headers;
             }
 
-            return null;
+            return new List<SessionHeader>();
+        }
+
+        /// <summary>
+        /// The GetSession.
+        /// </summary>
+        /// <param name="headerId">The headerId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{ActionResult{List{SessionExercise}}}"/>.</returns>
+        [HttpGet("/GetSession")]
+        public async Task<ActionResult<List<SessionExercise>>> GetSession(int headerId)
+        {
+            if (headerId > 0)
+            {
+                var headers = await this.userDetailRepository.GetSession(headerId);
+
+                return headers;
+            }
+
+            return new List<SessionExercise>();
+        }
+
+        /// <summary>
+        /// The PostAddSession.
+        /// </summary>
+        /// <param name="request">The request<see cref="AddSessionRequest"/>.</param>
+        /// <returns>The <see cref="Task{ActionResult{int}}"/>.</returns>
+        [HttpPost("/AddSessionHeader")]
+        public async Task<ActionResult<int>> PostAddSession([FromBody]AddSessionRequest request)
+        {
+            var sessionId = await this.userDetailRepository.AddSession(request.SessionName, request.UserId);
+
+            return sessionId;
         }
 
         /// <summary>
