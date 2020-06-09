@@ -44,11 +44,14 @@ namespace GymTrackerApi.Controllers
         /// </summary>
         /// <param name="userId">The userId<see cref="int"/>.</param>
         /// <returns>The <see cref="SessionHeader"/>.</returns>
-        [HttpGet("/GetSessionHeader")]
+        [HttpGet("GetSessionHeader")]
         public SessionHeader Get(int userId)
         {
             var user = exerciseRepository.GetSessionHeader(userId);
             return user;
         }
+
+
     }
 }
+ 

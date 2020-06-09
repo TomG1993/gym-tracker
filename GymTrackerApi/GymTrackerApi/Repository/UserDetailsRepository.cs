@@ -69,10 +69,10 @@ namespace GymTrackerApi.Repository
         }
 
         /// <summary>
-        /// The get session exercises repo
+        /// The get session exercises repo.
         /// </summary>
-        /// <param name="headerId"></param>
-        /// <returns>A list of session exercises based on the header id provided</returns>
+        /// <param name="headerId">.</param>
+        /// <returns>A list of session exercises based on the header id provided.</returns>
         public async Task<List<SessionExercise>> GetSession(int headerId)
         {
             var exercises = await context.SessionExercises.Where(x => x.HeaderId == headerId).ToListAsync();
@@ -81,10 +81,11 @@ namespace GymTrackerApi.Repository
         }
 
         /// <summary>
-        /// Add a new session
+        /// Add a new session.
         /// </summary>
-        /// <param name="sessionName"></param>
-        /// <returns></returns>
+        /// <param name="sessionName">.</param>
+        /// <param name="userId">The userId<see cref="int"/>.</param>
+        /// <returns>.</returns>
         public async Task<int> AddSession(string sessionName, int userId)
         {
             var sessionHeader = new SessionHeader()
@@ -99,7 +100,81 @@ namespace GymTrackerApi.Repository
             await context.SaveChangesAsync();
 
             return sessionHeader.Id;
+        }
 
+        /// <summary>
+        /// The GetExercise.
+        /// </summary>
+        /// <param name="exerciseName">The exerciseName<see cref="string"/>.</param>
+        /// <returns>The <see cref="Task{Exercise}"/>.</returns>
+        public async Task<Exercise> GetExercise(string exerciseName)
+        {
+            var exercise = await context.Exercises.FirstOrDefaultAsync(x => x.Description.ToLower() == exerciseName.ToLower());
+
+            return exercise;
+        }
+
+        /// <summary>
+        /// The AddExercise.
+        /// </summary>
+        /// <param name="ExerciseName">The ExerciseName<see cref="string"/>.</param>
+        /// <returns>The <see cref="Task{Exercise}"/>.</returns>
+        public async Task<Exercise> AddExercise(string ExerciseName)
+        {
+            var exercise = new Exercise()
+            {
+                Description = ExerciseName,
+                BodyPartTypeId = 0,
+                CreatedBy = "TGO",
+                CreatedDate = System.DateTime.Now,
+                Frozen = false
+            };
+
+            var result = await context.Exercises.AddAsync(exercise);
+
+            await context.SaveChangesAsync();
+
+            return exercise;
+        }
+
+        /// <summary>
+        /// The AddSessionExercise.
+        /// </summary>
+        /// <param name="sessionHeaderId">The sessionHeaderId<see cref="int"/>.</param>
+        /// <param name="exerciseId">The exerciseId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public async Task<int> AddSessionExercise(int sessionHeaderId, int exerciseId)
+        {
+            var sessionExercise = new SessionExercise()
+            {
+                HeaderId = sessionHeaderId,
+                ExerciseId = exerciseId,
+                CreatedBy = "TGO",
+                CreatedDate = System.DateTime.Now
+            };
+
+            var result = await context.SessionExercises.AddAsync(sessionExercise);
+
+            await context.SaveChangesAsync();
+
+            return sessionExercise.Id;
+        }
+
+        /// <summary>
+        /// The GetSessionExercises.
+        /// </summary>
+        /// <param name="sessionHeaderId">The sessionHeaderId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{List{SessionExercise}}"/>.</returns>
+        public async Task<List<SessionExercise>> GetSessionExercises(int sessionHeaderId)
+        {
+            if (sessionHeaderId > 0)
+            {
+                var exercises = await context.SessionExercises.Where(x => x.HeaderId == sessionHeaderId).ToListAsync();
+
+                return exercises;
+            }
+
+            return new List<SessionExercise>();
         }
     }
 }

@@ -146,6 +146,43 @@ namespace GymTrackerApi.Controllers
         }
 
         /// <summary>
+        /// The PostAddSession.
+        /// </summary>
+        /// <param name="request">The request<see cref="AddSessionRequest"/>.</param>
+        /// <returns>The <see cref="Task{ActionResult{int}}"/>.</returns>
+        [HttpPost("/AddSessionExercise")]
+        public async Task<ActionResult<int>> PostAddSessionExercise([FromBody]AddSessionExerciseRequest request)
+        {
+            // GetExercise(string exerciseName)
+            // Check if exercise already exists
+            var exercise = await this.userDetailRepository.GetExercise(request.ExerciseName);
+
+            // If not create new record of the exercise
+            if (exercise == null)
+            {
+                exercise = await this.userDetailRepository.AddExercise(request.ExerciseName);
+            }
+
+            // Save the session exercise
+            // .AddSessionExercise
+            var sessionId = await this.userDetailRepository.AddSessionExercise(request.SessionHeaderId, exercise.Id);
+
+            return sessionId;
+        }
+        /// <summary>
+        /// The Get session exercise end point
+        /// </summary>
+        /// <param name="sessionHeaderId"></param>
+        /// <returns></returns>
+        public async Task<ActionResult<List<SessionExercise>>> GetSessionExercises(int sessionHeaderId)
+        { 
+            var sessionExercises = await this.userDetailRepository.GetSessionExercises(sessionHeaderId);
+
+            return sessionExercises;
+        }
+
+
+        /// <summary>
         /// The Get test.
         /// </summary>
         /// <param name="number">The number<see cref="int"/>.</param>

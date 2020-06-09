@@ -50,6 +50,7 @@ namespace GymTrackerApi
            options.UseSqlServer(Configuration.GetConnectionString("GymTrackerContext")));
 
             services.AddTransient<IUserDetailsRepository, UserDetailsRepository>();
+            services.AddTransient<IExerciseRepository, ExerciseRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
