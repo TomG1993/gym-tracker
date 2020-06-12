@@ -4,7 +4,7 @@
 * Created by: Tom Gorton
 *******************************************************************************************/
 
-namespace GymTrackerApi.Models.ReturnModels
+namespace GymTrackerApi.Models.Responses
 {
     /// <summary>
     /// Defines the <see cref="SessionExerciseSetReturnModel" />.

@@ -19,6 +19,7 @@ namespace GymTrackerApi
     using Microsoft.Extensions.Hosting;
     using Microsoft.IdentityModel.Tokens;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using System.Text;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -48,13 +49,29 @@ namespace GymTrackerApi
         {
             services.AddCors(); // Make sure you call this previous to AddMvc
 
-            services.AddControllers(o => o.Filters.Add(new AuthorizeFilter()));
+            services.AddControllers();
 
             services.AddDbContext<GymTrackerContext>(options =>
            options.UseSqlServer(Configuration.GetConnectionString("GymTrackerContext")));
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["JwtToken:Issuer"],
+                    ValidAudience = Configuration["JwtToken:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtToken:Secret"]))
+                };
+            });
 
             services.AddTransient<IUserDetailsRepository, UserDetailsRepository>();
             services.AddTransient<IExerciseRepository, ExerciseRepository>();

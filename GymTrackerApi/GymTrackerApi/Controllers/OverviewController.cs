@@ -8,22 +8,27 @@ namespace GymTrackerApi.Controllers
 {
     using GymTrackerApi.Models;
     using GymTrackerApi.Models.Requests;
-    using GymTrackerApi.Models.ReturnModels;
+    using GymTrackerApi.Models.Responses;
     using GymTrackerApi.Repository.Interfaces;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IdentityModel.Tokens;
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
+    using System.Text;
     using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the <see cref="OverviewController" />.
     /// </summary>
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class OverviewController : ControllerBase
     {
@@ -38,14 +43,20 @@ namespace GymTrackerApi.Controllers
         private readonly ILogger<OverviewController> _logger;
 
         /// <summary>
+        /// Gets the Configuration.
+        /// </summary>
+        public IConfiguration Configuration { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="OverviewController"/> class.
         /// </summary>
         /// <param name="_userDetailRepository">The _userDetailRepository<see cref="IUserDetailsRepository"/>.</param>
         /// <param name="logger">The logger<see cref="ILogger{OverviewController}"/>.</param>
-        public OverviewController(IUserDetailsRepository _userDetailRepository, ILogger<OverviewController> logger)
+        public OverviewController(IUserDetailsRepository _userDetailRepository, ILogger<OverviewController> logger, IConfiguration configuration)
         {
             userDetailRepository = _userDetailRepository;
             _logger = logger;
+            Configuration = configuration;
         }
 
         /// <summary>
@@ -86,7 +97,7 @@ namespace GymTrackerApi.Controllers
         /// <returns>The <see cref="Task{ActionResult{UserDetail}}"/>.</returns>
         [AllowAnonymous]
         [HttpPost("/Login")]
-        public async Task<ActionResult<UserDetail>> PostLogin([FromBody]LoginRequest request)
+        public async Task<ActionResult<UserResponseModel>> PostLogin([FromBody]LoginRequest request)
         {
             var user = await this.userDetailRepository.GetUserDetail(request.Email);
 
@@ -95,26 +106,20 @@ namespace GymTrackerApi.Controllers
                 // TODO Hash the password
                 if (request.Password == user.Password)
                 {
-                    var claims = new List<Claim>()
+
+                    var tokenString = BuildJWTToken();
+
+                    var userResponse = new UserResponseModel()
                     {
-                        new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
-                        new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Email, user.Email)
+                        Name = user.Name,
+                        Id = user.ID,
+                        Token = tokenString
                     };
 
-                    var identity = new ClaimsIdentity(claims,
-                        CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    var principal = new ClaimsPrincipal(identity);
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                        principal,
-                        new AuthenticationProperties { IsPersistent = true , ExpiresUtc = DateTime.Now.AddHours(24) });
-
-                    return user;
+                    return userResponse;
                 }
 
-                return new UserDetail() { ID = 0, Name = "Incorrect password" };
+                return new UserResponseModel() { Id = 0, Name = "Incorrect password" };
             }
 
             return null;
@@ -268,6 +273,22 @@ namespace GymTrackerApi.Controllers
             test.Add("This is a test");
 
             return test;
+        }
+
+        private string BuildJWTToken()
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtToken:Secret"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var issuer = Configuration["JwtToken:Issuer"];
+            var audience = Configuration["JwtToken:Audience"];
+            var jwtValidity = DateTime.Now.AddMinutes(Convert.ToDouble(Configuration["JwtToken:TokenExpiry"]));
+
+            var token = new JwtSecurityToken(issuer,
+              audience,
+              expires: jwtValidity,
+              signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

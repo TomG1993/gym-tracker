@@ -7,7 +7,7 @@
 namespace GymTrackerApi.Repository.Interfaces
 {
     using GymTrackerApi.Models;
-    using GymTrackerApi.Models.ReturnModels;
+    using GymTrackerApi.Models.Responses;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
