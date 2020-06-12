@@ -8,10 +8,16 @@ namespace GymTrackerApi.Controllers
 {
     using GymTrackerApi.Models;
     using GymTrackerApi.Models.Requests;
+    using GymTrackerApi.Models.ReturnModels;
     using GymTrackerApi.Repository.Interfaces;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Cookies;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
+    using System;
     using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -78,6 +84,7 @@ namespace GymTrackerApi.Controllers
         /// </summary>
         /// <param name="request">The request containing an email and a password<see cref="LoginRequest"/>.</param>
         /// <returns>The <see cref="Task{ActionResult{UserDetail}}"/>.</returns>
+        [AllowAnonymous]
         [HttpPost("/Login")]
         public async Task<ActionResult<UserDetail>> PostLogin([FromBody]LoginRequest request)
         {
@@ -85,8 +92,25 @@ namespace GymTrackerApi.Controllers
 
             if (user.Email == request.Email)
             {
+                // TODO Hash the password
                 if (request.Password == user.Password)
                 {
+                    var claims = new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
+                        new Claim(ClaimTypes.Name, user.Name),
+                        new Claim(ClaimTypes.Email, user.Email)
+                    };
+
+                    var identity = new ClaimsIdentity(claims,
+                        CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                        principal,
+                        new AuthenticationProperties { IsPersistent = true , ExpiresUtc = DateTime.Now.AddHours(24) });
+
                     return user;
                 }
 
@@ -174,11 +198,60 @@ namespace GymTrackerApi.Controllers
         /// </summary>
         /// <param name="sessionHeaderId"></param>
         /// <returns></returns>
-        public async Task<ActionResult<List<SessionExercise>>> GetSessionExercises(int sessionHeaderId)
+        [HttpGet("/GetSessionExercises")]
+        public async Task<ActionResult<List<SessionExerciseReturnModel>>> GetSessionExercises(int sessionHeaderId)
         { 
             var sessionExercises = await this.userDetailRepository.GetSessionExercises(sessionHeaderId);
 
             return sessionExercises;
+        }
+
+
+        /// <summary>
+        /// Add session exercise sets end point
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("/AddSessionExerciseSet")]
+        public async Task<ActionResult<int>> PostAddSessionExerciseSet([FromBody]AddSessionExerciseSetRequest request)
+        {
+            // Breakdown the weight reps string request.WeightReps
+            var tokens = request.WeightReps.Split('x');
+            var reps = int.Parse(tokens[0].Trim());
+            var weight = int.Parse(tokens[1].Trim());
+ 
+            // Save the session exercise set
+            var sessionId = await this.userDetailRepository.AddSessionExerciseSet(request.SessionExerciseId, reps, weight);
+
+            return sessionId;
+        }
+
+        /// <summary>
+        /// Get session exercise sets end point
+        /// </summary>
+        /// <param name="sessionHeaderId"></param>
+        /// <returns>List of session excercise sets</returns>
+        [HttpGet("/GetSessionExerciseSets")]
+        public async Task<ActionResult<List<SessionExerciseSetReturnModel>>> GetSessionExerciseSets(int sessionExerciseId)
+        {
+            var sessionExerciseSets = await this.userDetailRepository.GetSessionExerciseSets(sessionExerciseId);
+
+            var returnList = new List<SessionExerciseSetReturnModel>();
+
+            foreach(var set in sessionExerciseSets)
+            {
+                var weightReps = $"{set.Repetitions}x{set.Weight}";
+                var returnSet = new SessionExerciseSetReturnModel()
+                {
+                    Id = set.Id,
+                    ExerciseId = set.SessionExerciseID,
+                    Description = weightReps
+                };
+
+                returnList.Add(returnSet);
+            }
+
+            return returnList;
         }
 
 

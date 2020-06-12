@@ -7,6 +7,7 @@
 namespace GymTrackerApi.Repository
 {
     using GymTrackerApi.Models;
+    using GymTrackerApi.Models.ReturnModels;
     using GymTrackerApi.Repository.Interfaces;
     using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
@@ -165,16 +166,83 @@ namespace GymTrackerApi.Repository
         /// </summary>
         /// <param name="sessionHeaderId">The sessionHeaderId<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{List{SessionExercise}}"/>.</returns>
-        public async Task<List<SessionExercise>> GetSessionExercises(int sessionHeaderId)
+        public async Task<List<SessionExerciseReturnModel>> GetSessionExercises(int sessionHeaderId)
         {
+            var modelList = new List<SessionExerciseReturnModel>();
+
             if (sessionHeaderId > 0)
             {
+
                 var exercises = await context.SessionExercises.Where(x => x.HeaderId == sessionHeaderId).ToListAsync();
 
-                return exercises;
+                foreach (var exercise in exercises)
+                {
+                    var model = new SessionExerciseReturnModel()
+                    {
+                        Id = exercise.Id,
+                        HeaderId = exercise.HeaderId,
+                        ExerciseId = exercise.ExerciseId,
+                        Description = this.GetExerciseDescription(exercise.ExerciseId)
+                    };
+
+                    modelList.Add(model);
+                }
+
             }
 
-            return new List<SessionExercise>();
+            return modelList;
+        }
+
+        /// <summary>
+        /// The get exercise description
+        /// </summary>
+        /// <param name="exerciseId">The id</param>
+        /// <returns>The description string</returns>
+        private string GetExerciseDescription(int exerciseId)
+        {
+            return context.Exercises.FirstOrDefault(x => x.Id == exerciseId).Description;
+        }
+
+        /// <summary>
+        /// Add session exercise set
+        /// </summary>
+        /// <param name="sessionExerciseId"></param>
+        /// <param name="reps"></param>
+        /// <param name="weight"></param>
+        /// <returns></returns>
+        public async Task<int> AddSessionExerciseSet(int sessionExerciseId, int reps, int weight)
+        {
+            if (sessionExerciseId < 0)
+            {
+                return 0;
+            }
+
+            var sessionExerciseSet = new SessionExerciseSet()
+            {
+                SessionExerciseID = sessionExerciseId,
+                Repetitions = reps,
+                Weight = weight,
+                CreatedBy = "TGO",
+                CreatedDate = System.DateTime.Now,
+                Frozen = false,
+            };
+
+            var result = await this.context.SessionExerciseSets.AddAsync(sessionExerciseSet);
+
+            await this.context.SaveChangesAsync();
+
+            return result.Entity.Id;
+
+        }
+
+        /// <summary>
+        /// Get all sets for a session exercise
+        /// </summary>
+        /// <param name="sessionExerciseId"></param>
+        /// <returns></returns>
+        public async Task<List<SessionExerciseSet>> GetSessionExerciseSets(int sessionExerciseId)
+        {
+            return await context.SessionExerciseSets.Where(x => x.SessionExerciseID == sessionExerciseId).ToListAsync();
         }
     }
 }

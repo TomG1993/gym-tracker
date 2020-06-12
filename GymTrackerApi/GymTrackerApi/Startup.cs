@@ -9,12 +9,16 @@ namespace GymTrackerApi
     using GymTrackerApi.Models;
     using GymTrackerApi.Repository;
     using GymTrackerApi.Repository.Interfaces;
+    using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc.Authorization;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IdentityModel.Tokens;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -44,10 +48,13 @@ namespace GymTrackerApi
         {
             services.AddCors(); // Make sure you call this previous to AddMvc
 
-            services.AddControllers();
+            services.AddControllers(o => o.Filters.Add(new AuthorizeFilter()));
 
             services.AddDbContext<GymTrackerContext>(options =>
            options.UseSqlServer(Configuration.GetConnectionString("GymTrackerContext")));
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
 
             services.AddTransient<IUserDetailsRepository, UserDetailsRepository>();
             services.AddTransient<IExerciseRepository, ExerciseRepository>();
@@ -75,6 +82,8 @@ namespace GymTrackerApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

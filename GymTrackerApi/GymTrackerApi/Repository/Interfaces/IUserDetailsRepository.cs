@@ -7,6 +7,7 @@
 namespace GymTrackerApi.Repository.Interfaces
 {
     using GymTrackerApi.Models;
+    using GymTrackerApi.Models.ReturnModels;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -78,6 +79,23 @@ namespace GymTrackerApi.Repository.Interfaces
         /// </summary>
         /// <param name="sessionHeaderId">The sessionHeaderId<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{List{Exercise}}"/>.</returns>
-        public Task<List<SessionExercise>> GetSessionExercises(int sessionHeaderId);
+        public Task<List<SessionExerciseReturnModel>> GetSessionExercises(int sessionHeaderId);
+
+        /// <summary>
+        /// Adds session exercise sets
+        /// </summary>
+        /// <param name="sessionExerciseId"></param>
+        /// <param name="reps"></param>
+        /// <param name="weight"></param>
+        /// <returns></returns>
+        public Task<int> AddSessionExerciseSet(int sessionExerciseId, int reps, int weight);
+
+        /// <summary>
+        /// Gets session exercise sets
+        /// </summary>
+        /// <param name="sessionHeaderId"></param>
+        /// <returns></returns>
+        public Task<List<SessionExerciseSet>> GetSessionExerciseSets(int sessionExerciseId);
+
     }
 }
