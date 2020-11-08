@@ -194,22 +194,22 @@ namespace GymTrackerApi.Repository
         }
 
         /// <summary>
-        /// The get exercise description
+        /// The get exercise description.
         /// </summary>
-        /// <param name="exerciseId">The id</param>
-        /// <returns>The description string</returns>
+        /// <param name="exerciseId">The id.</param>
+        /// <returns>The description string.</returns>
         private string GetExerciseDescription(int exerciseId)
         {
             return context.Exercises.FirstOrDefault(x => x.Id == exerciseId).Description;
         }
 
         /// <summary>
-        /// Add session exercise set
+        /// Add session exercise set.
         /// </summary>
-        /// <param name="sessionExerciseId"></param>
-        /// <param name="reps"></param>
-        /// <param name="weight"></param>
-        /// <returns></returns>
+        /// <param name="sessionExerciseId">.</param>
+        /// <param name="reps">.</param>
+        /// <param name="weight">.</param>
+        /// <returns>.</returns>
         public async Task<int> AddSessionExerciseSet(int sessionExerciseId, int reps, int weight)
         {
             if (sessionExerciseId < 0)
@@ -232,17 +232,60 @@ namespace GymTrackerApi.Repository
             await this.context.SaveChangesAsync();
 
             return result.Entity.Id;
-
         }
 
         /// <summary>
-        /// Get all sets for a session exercise
+        /// Get all sets for a session exercise.
         /// </summary>
-        /// <param name="sessionExerciseId"></param>
-        /// <returns></returns>
+        /// <param name="sessionExerciseId">.</param>
+        /// <returns>.</returns>
         public async Task<List<SessionExerciseSet>> GetSessionExerciseSets(int sessionExerciseId)
         {
             return await context.SessionExerciseSets.Where(x => x.SessionExerciseID == sessionExerciseId).ToListAsync();
+        }
+
+        /// <summary>
+        /// The GetGyms.
+        /// </summary>
+        /// <returns>The <see cref="Task{List{Gym}}"/>.</returns>
+        public async Task<List<Gym>> GetGyms()
+        {
+            return await context.Gyms.Where(x => x.Id > 0).ToListAsync();
+        }
+
+        /// <summary>
+        /// The GetGym.
+        /// </summary>
+        /// <param name="GymId">The GymId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{Gym}"/>.</returns>
+        public async Task<Gym> GetGym(int GymId)
+        {
+            return await context.Gyms.FirstOrDefaultAsync(x => x.Id == GymId);
+        }
+
+        /// <summary>
+        /// The GetMembersGym.
+        /// </summary>
+        /// <param name="UserId">The UserId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{Gym}"/>.</returns>
+        public async Task<Gym> GetMembersGym(int UserId)
+        {
+            var gym = await context.GymUsers.FirstOrDefaultAsync(y => y.UserId == UserId);
+            return await context.Gyms.FirstOrDefaultAsync(x => x.Id == gym.Id);
+        }
+
+        /// <summary>
+        /// The GetGymMembers.
+        /// </summary>
+        /// <param name="GymId">The GymId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{List{UserDetail}}"/>.</returns>
+        public async Task<List<UserDetail>> GetGymMembers(int GymId)
+        {
+            var gymUserIds = await context.GymUsers.Where(x => x.GymId == GymId).Select(y => y.UserId).ToListAsync();
+
+            var users = await context.UserDetails.Where(x => gymUserIds.Contains(x.ID)).ToListAsync();
+
+            return users;
         }
     }
 }

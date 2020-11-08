@@ -259,6 +259,15 @@ namespace GymTrackerApi.Controllers
             return returnList;
         }
 
+        [HttpGet("/GetGyms")]
+        public async Task<ActionResult<List<Gym>>> GetGyms()
+        {
+            var sessionExerciseSets = await this.userDetailRepository.GetSessionExerciseSets();
+
+            var returnList = new List<SessionExerciseSetReturnModel>();
+
+            return returnList;
+        }
 
         /// <summary>
         /// The Get test.
@@ -270,8 +279,8 @@ namespace GymTrackerApi.Controllers
         {
             var test = new List<string>();
 
-            test.Add("This is a test");
-
+            test.Add("This is a test");            
+        
             return test;
         }
 

@@ -82,20 +82,46 @@ namespace GymTrackerApi.Repository.Interfaces
         public Task<List<SessionExerciseReturnModel>> GetSessionExercises(int sessionHeaderId);
 
         /// <summary>
-        /// Adds session exercise sets
+        /// Adds session exercise sets.
         /// </summary>
-        /// <param name="sessionExerciseId"></param>
-        /// <param name="reps"></param>
-        /// <param name="weight"></param>
-        /// <returns></returns>
+        /// <param name="sessionExerciseId">.</param>
+        /// <param name="reps">.</param>
+        /// <param name="weight">.</param>
+        /// <returns>.</returns>
         public Task<int> AddSessionExerciseSet(int sessionExerciseId, int reps, int weight);
 
         /// <summary>
-        /// Gets session exercise sets
+        /// Gets session exercise sets.
         /// </summary>
-        /// <param name="sessionHeaderId"></param>
-        /// <returns></returns>
+        /// <param name="sessionExerciseId">The sessionExerciseId<see cref="int"/>.</param>
+        /// <returns>.</returns>
         public Task<List<SessionExerciseSet>> GetSessionExerciseSets(int sessionExerciseId);
 
+        /// <summary>
+        /// The GetGyms.
+        /// </summary>
+        /// <returns>The <see cref="Task{List{Gym}}"/>.</returns>
+        public Task<List<Gym>> GetGyms();
+
+        /// <summary>
+        /// The GetGym.
+        /// </summary>
+        /// <param name="GymId">The GymId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{Gym}"/>.</returns>
+        public Task<Gym> GetGym(int GymId);
+
+        /// <summary>
+        /// The GetMembersGym.
+        /// </summary>
+        /// <param name="UserId">The UserId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{Gym}"/>.</returns>
+        public Task<Gym> GetMembersGym(int UserId);
+
+        /// <summary>
+        /// The GetGymMembers.
+        /// </summary>
+        /// <param name="GymId">The GymId<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{List{UserDetail}}"/>.</returns>
+        public Task<List<UserDetail>> GetGymMembers(int GymId);
     }
 }

@@ -15,6 +15,9 @@ namespace GymTrackerApi.Models
         public DbSet<SessionExerciseSet> SessionExerciseSets { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<BodyPartType> BodyPartTypes { get; set; }
+        public DbSet<Gym> Gyms { get; set; }
+        public DbSet<GymUsers> GymUsers { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
